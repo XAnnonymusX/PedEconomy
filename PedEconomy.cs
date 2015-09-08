@@ -433,11 +433,11 @@ namespace PedEconomy
                     for (i = 0;i < RankListLength && group != ranks[i].groupName;i++) {
 
                     }
-                    if (i == RankListLength) {
-                        for (i = 0;i < SubRankListLength && group != ranks[i].groupName;i++) {
+                    if (i >= RankListLength) {
+                        for (i = 0;i < SubRankListLength && group != subRanks[i].groupName;i++) {
 
                         }
-                        if (i == SubRankListLength) {
+                        if (i >= SubRankListLength) {
                             args.Player.SendErrorMessage("You are not eligible to rank up (You must to be a normal registered user without moderating, administrative or celebrity privileges)!");
                         } else {
                             db.Open();
