@@ -25,6 +25,7 @@ namespace PedEconomy
             public string displayName;
         }
 
+        #region global variables
         public int RankListLength = File.ReadLines(@"ranklist.txt").Count();
         public int SubRankListLength = File.ReadLines(@"subranklist.txt").Count();
         public string PointName = "PedPoints";
@@ -32,6 +33,7 @@ namespace PedEconomy
         public SQLiteConnection db;
         public rank[] ranks;
         public rank[] subRanks;
+        #endregion
 
         public override Version Version
         {
@@ -62,11 +64,12 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.user", password, "password"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", reload, "reloadeconomy"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", leveldown, "leveldown"));
+
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
 
-            
+            #region ranklist initializing
             StreamReader reader = File.OpenText(@"rankList.txt");
-
+            
             try {
                 string line;
                 string word;
@@ -136,9 +139,9 @@ namespace PedEconomy
                 reader.Close();
             } catch {
                 reader.Close();
-                
             }
-            
+            #endregion
+
         }
 
         private void reload(CommandArgs args) {
