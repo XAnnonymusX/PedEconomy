@@ -52,6 +52,14 @@ namespace PedEconomy
             get { return "Replacement for SEconomy on pedguin's server cause SEconomy is shit."; }
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+            base.Dispose(disposing);
+        }
+
         public override void Initialize()
         {
             Commands.ChatCommands.Add(new Command("PedEconomy.user", points, "points"));
@@ -64,6 +72,7 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.user", password, "password"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", reload, "reloadeconomy"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", leveldown, "leveldown"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.user", give, "give"));
 
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
 
@@ -233,22 +242,6 @@ namespace PedEconomy
             command.ExecuteNonQuery();
             db.Close();
             GC.Collect();
-        }
-
-        private void Start() {
-            //db = new SqliteConnection("uri=file://" + TShock.SavePath + "PedEconomy.sqlite,Version=3");
-            //db.Query("UPDATE Economy SET Points=" + points + " WHERE Username=" + player);
-
-            //SQLiteConnection.CreateFile("PedEconomy.sqlite");
-            db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-            base.Dispose(disposing);
         }
 
         public PedEconomy(Main game) : base(game)
@@ -678,6 +671,73 @@ namespace PedEconomy
                     db.Close();
                     GC.Collect();
                     args.Player.SendErrorMessage("Unknown exception in /trash");
+                }
+            }
+        }
+
+        public void give(CommandArgs args) {
+
+            if (args.Parameters.Count != 2) {
+                args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /give player points");
+            } else {
+                System.Collections.Generic.List<TSPlayer> foundplr = TShock.Utils.FindPlayer(args.Parameters[0]);
+                if (foundplr.Count == 0) {
+                    args.Player.SendErrorMessage("Invalid player!");
+                } else if (foundplr.Count > 1) {
+                    args.Player.SendErrorMessage("More than one (" + args.Parameters.Count + ") player matched!");
+                } else {
+
+                    TSPlayer player = foundplr[0];
+                    string name = player.User.Name;
+
+                    try {
+
+                        db.Open();
+                        SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + name + "'", db);
+                        SQLiteDataReader reader = command.ExecuteReader();
+                        reader.Read();
+                        int pointsCurr = (int)reader["Points"];
+                        int points;
+                        string sPoints = args.Parameters[1];
+                        bool abort = false;
+                        for (int i = 0;(i < sPoints.Length) && (abort == false);i++) {
+                            if (sPoints.ElementAt(i) == '.') {
+                                sPoints = sPoints.Substring(0, sPoints.Length - i);
+                                abort = true;
+                            }
+                        }
+                        if (!Int32.TryParse(sPoints, out points)) {
+                            args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /give player points(numerical)");
+                        } else {
+                            command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + args.Player.User.Name + "'", db);
+                            reader = command.ExecuteReader();
+                            int donorPoints = (int)reader["Points"];
+                            if (donorPoints > points) {
+                                if (points > 0) {
+                                    if (points > 1) {
+                                        player.SendMessage("You were given " + points + " " + PointName + " by " + args.Player.User.Name, 255, 128, 0);
+                                        args.Player.SendMessage("You gave " + name + " " + points + " " + PointName, 255, 128, 0);
+                                    } else if (points > 0) {
+                                        player.SendMessage("You were given " + points + " " + PointNameSingular + " by " + args.Player.User.Name, 255, 128, 0);
+                                        args.Player.SendMessage("You gave " + name + " " + points + " " + PointNameSingular, 255, 128, 0);
+                                    }
+                                    donorPoints = donorPoints - points;
+                                    points = points + pointsCurr;
+                                    SQLiteCommand command2 = new SQLiteCommand("UPDATE Economy SET Points=" + points + " WHERE Username='" + name + "'", db);
+                                    command2.ExecuteNonQuery();
+                                    command2 = new SQLiteCommand("UPDATE Economy SET Points=" + donorPoints + " WHERE Username='" + args.Player.User.Name + "'", db);
+                                } else {
+                                    args.Player.SendErrorMessage("Did you just try to steal points from " + name + "?");
+                                }
+                            }
+                        }
+                        db.Close();
+                        GC.Collect();
+                    } catch {
+                        db.Close();
+                        GC.Collect();
+                        args.Player.SendErrorMessage("Unknown exception in /award");
+                    }
                 }
             }
         }
