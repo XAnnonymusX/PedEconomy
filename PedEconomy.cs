@@ -61,6 +61,7 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", closedb, "closedb"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", password, "password"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", reload, "reloadeconomy"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.user", leveldown, "leveldown"));
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
 
             
@@ -484,6 +485,72 @@ namespace PedEconomy
                         } else {
                             args.Player.SendErrorMessage("You don't have enough points to rank up, you need " + ranks[i + 1].points + " " + PointName + " to become " + ranks[i + 1].displayName);
                         }
+                        db.Close();
+                        GC.Collect();
+                    }
+                }
+            } catch {
+                db.Close();
+                GC.Collect();
+                args.Player.SendErrorMessage("Unknown exception in /levelup");
+            }
+        }
+
+        private void leveldown(CommandArgs args) {
+            try {
+
+                if (args.Parameters.Count != 0) {
+                    args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /leveldown");
+                } else {
+                    string group = args.Player.User.Group;
+
+                    int i;
+
+                    for (i = 0;i < RankListLength && group != ranks[i].groupName;i++) {
+
+                    }
+                    if (i >= RankListLength) {
+                        for (i = 0;i < SubRankListLength && group != subRanks[i].groupName;i++) {
+
+                        }
+                        if (i >= SubRankListLength) {
+                            args.Player.SendErrorMessage("You are not eligible to rank up or down (You must to be a normal registered user without moderating, administrative or celebrity privileges)!");
+                        } else {
+                            db.Open();
+                            SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + args.Player.User.Name + "'", db);
+                            SQLiteDataReader reader = command.ExecuteReader();
+
+                            reader.Read();
+                            int points = (int)reader["Points"];
+                            string password = (string)reader["Password"];
+
+                            command = new SQLiteCommand("UPDATE Economy SET Points=" + (points + subRanks[i].points) + " WHERE Username='" + args.Player.User.Name + "'", db);
+                            command.ExecuteNonQuery();
+
+                            Commands.HandleCommand(TSPlayer.Server, "/user group \"" + args.Player.User.Name + "\" " + subRanks[i - 1].groupName);
+                            string username = args.Player.User.Name;
+                            Commands.HandleCommand(args.Player, "/logout");
+                            Commands.HandleCommand(args.Player, "/login \"" + username + "\" " + password);
+                            args.Player.SendMessage("You have ranked down to " + subRanks[i - 1].displayName, 255, 128, 0);
+                        }
+                    } else {
+                        db.Open();
+                        SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + args.Player.User.Name + "'", db);
+                        SQLiteDataReader reader = command.ExecuteReader();
+
+                        reader.Read();
+                        int points = (int)reader["Points"];
+                        string password = (string)reader["Password"];
+
+                        command = new SQLiteCommand("UPDATE Economy SET Points=" + (points + ranks[i].points) + " WHERE Username='" + args.Player.User.Name + "'", db);
+                        command.ExecuteNonQuery();
+
+                        Commands.HandleCommand(TSPlayer.Server, "/user group \"" + args.Player.User.Name + "\" " + ranks[i - 1].groupName);
+                        string username = args.Player.User.Name;
+                        Commands.HandleCommand(args.Player, "/logout");
+                        Commands.HandleCommand(args.Player, "/login \"" + username + "\" " + password);
+                        args.Player.SendMessage("You have ranked down to " + ranks[i - 1].displayName, 255, 128, 0);
+
                         db.Close();
                         GC.Collect();
                     }
