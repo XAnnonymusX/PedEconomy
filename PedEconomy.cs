@@ -67,7 +67,7 @@ namespace PedEconomy
 
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
 
-            #region ranklist initializing
+            #region ranklist initialization
             StreamReader reader = File.OpenText(@"rankList.txt");
             
             try {
@@ -629,6 +629,55 @@ namespace PedEconomy
                     db.Close();
                     GC.Collect();
                     args.Player.SendErrorMessage("Unknown exception in /password");
+                }
+            }
+        }
+
+        public void trash(CommandArgs args) {
+
+            if (args.Parameters.Count != 1) {
+                args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /trash points");
+            } else {
+
+                TSPlayer player = args.Player;
+                string name = player.User.Name;
+
+                try {
+
+                    db.Open();
+                    SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + args.Player.User.Name + "'", db);
+                    SQLiteDataReader reader = command.ExecuteReader();
+                    reader.Read();
+                    int pointsCurr = (int)reader["Points"];
+                    int points;
+                    string sPoints = args.Parameters[1];
+                    bool abort = false;
+                    for (int i = 0;(i < sPoints.Length) && (abort == false);i++) {
+                        if (sPoints.ElementAt(i) == '.') {
+                            sPoints = sPoints.Substring(0, sPoints.Length - i);
+                            abort = true;
+                        }
+                    }
+                    if (!Int32.TryParse(sPoints, out points)) {
+                        args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /trash points(numerical)");
+                    } else if (points <=0) {
+                        args.Player.SendErrorMessage("Nice try but you can't trash negative points buddy");
+                    } else {
+                        if (points > 1) {
+                            player.SendMessage("You trashed " + points + " " + PointName, 255, 128, 0);
+                        } else if (points > 0) {
+                            player.SendMessage("You trashed " + points + " " + PointNameSingular, 255, 128, 0);
+                        }
+                        points = pointsCurr - points;
+                        SQLiteCommand command2 = new SQLiteCommand("UPDATE Economy SET Points=" + points + " WHERE Username='" + name + "'", db);
+                        command2.ExecuteNonQuery();
+                    }
+                    db.Close();
+                    GC.Collect();
+                } catch {
+                    db.Close();
+                    GC.Collect();
+                    args.Player.SendErrorMessage("Unknown exception in /trash");
                 }
             }
         }
