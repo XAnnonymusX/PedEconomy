@@ -63,10 +63,10 @@ namespace PedEconomy
         public override void Initialize()
         {
             Commands.ChatCommands.Add(new Command("PedEconomy.user", points, "points"));
-            Commands.ChatCommands.Add(new Command("PedEconomy.admin", award, "award"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.mod", award, "award"));
             Commands.ChatCommands.Add(new Command("PedEconomy.unregistered", login, "login"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", levelup, "levelup"));
-            Commands.ChatCommands.Add(new Command("PedEconomy.admin", awardAll, "awardall"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.mod", awardAll, "awardall"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", start, "createdbresetaccounts"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", closedb, "closedb"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", password, "password"));
