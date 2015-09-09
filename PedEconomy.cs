@@ -72,7 +72,7 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.user", password, "password"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", reload, "reloadeconomy"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", leveldown, "leveldown"));
-            Commands.ChatCommands.Add(new Command("PedEconomy.user", give, "give"));
+            //Commands.ChatCommands.Add(new Command("PedEconomy.user", give, "give"));  //command removed because of complaints by admin
 
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
 
@@ -675,6 +675,8 @@ namespace PedEconomy
             }
         }
 
+#if ACTIVATEINACTIVE
+        #region inactive
         public void give(CommandArgs args) {
 
             if (args.Parameters.Count != 2) {
@@ -741,6 +743,7 @@ namespace PedEconomy
                 }
             }
         }
+        #endregion
+#endif
     }
 }
-
