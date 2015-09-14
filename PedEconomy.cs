@@ -72,6 +72,7 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.user", password, "password"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", reload, "reloadeconomy"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", leveldown, "leveldown"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.admin", relog, "relog"));
             //Commands.ChatCommands.Add(new Command("PedEconomy.user", give, "give"));  //command removed because of complaints by admin
 
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
@@ -672,6 +673,35 @@ namespace PedEconomy
                     GC.Collect();
                     args.Player.SendErrorMessage("Unknown exception in /trash");
                 }
+            }
+        }
+
+        private void relog(CommandArgs args) {
+            try {
+
+                if (args.Parameters.Count != 0) {
+                    args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /relog");
+                } else {
+                    string group = args.Player.User.Group;
+
+                    db.Open();
+                    SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + args.Player.User.Name + "'", db);
+                    SQLiteDataReader reader = command.ExecuteReader();
+                    reader.Read();
+                    string password = (string)reader["Password"];
+
+                    string username = args.Player.User.Name;
+                    Commands.HandleCommand(args.Player, "/logout");
+                    Commands.HandleCommand(args.Player, "/login \"" + username + "\" " + password);
+
+                    db.Close();
+                    GC.Collect();
+
+                }
+            } catch {
+                db.Close();
+                GC.Collect();
+                args.Player.SendErrorMessage("Unknown exception in /relog");
             }
         }
 
