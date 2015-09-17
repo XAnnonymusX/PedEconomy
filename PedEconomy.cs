@@ -33,7 +33,7 @@ namespace PedEconomy
         public SQLiteConnection db;
         public rank[] ranks;
         public rank[] subRanks;
-        public string versionNumber = "1.1.0";
+        public string versionNumber = "1.1.1";
         #endregion
 
         public override Version Version
@@ -74,6 +74,7 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", reload, "reloadeconomy"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", leveldown, "leveldown"));
             Commands.ChatCommands.Add(new Command("PedEconomy.admin", relog, "relog"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.mod", version, "version"));
             //Commands.ChatCommands.Add(new Command("PedEconomy.user", give, "give"));  //command removed because of complaints by admin
 
             db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
