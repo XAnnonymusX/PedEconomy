@@ -523,7 +523,7 @@ namespace PedEconomy
                             int points = (int)reader["Points"];
                             string password = (string)reader["Password"];
 
-                            command = new SQLiteCommand("UPDATE Economy SET Points=" + (points + subRanks[i].points) + " WHERE Username='" + args.Player.User.Name + "'", db);
+                            command = new SQLiteCommand("UPDATE Economy SET Points=" + (points + (subRanks[i].points - 5)) + " WHERE Username='" + args.Player.User.Name + "'", db);
                             command.ExecuteNonQuery();
 
                             Commands.HandleCommand(TSPlayer.Server, "/user group \"" + args.Player.User.Name + "\" " + subRanks[i - 1].groupName);
