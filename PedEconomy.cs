@@ -33,6 +33,7 @@ namespace PedEconomy
         public SQLiteConnection db;
         public rank[] ranks;
         public rank[] subRanks;
+        public string versionNumber = "1.1.0";
         #endregion
 
         public override Version Version
@@ -703,6 +704,10 @@ namespace PedEconomy
                 GC.Collect();
                 args.Player.SendErrorMessage("Unknown exception in /relog");
             }
+        }
+
+        private void version(CommandArgs args) {
+            args.Player.SendMessage("PedEconomy's current version is " + versionNumber, 0, 255, 0);
         }
 
 #if ACTIVATEINACTIVE
