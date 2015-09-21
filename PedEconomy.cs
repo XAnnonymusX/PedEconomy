@@ -33,7 +33,7 @@ namespace PedEconomy
         public SQLiteConnection db;
         public rank[] ranks;
         public rank[] subRanks;
-        public string versionNumber = "1.1.1";
+        public string versionNumber = "1.1.2";
         #endregion
 
         public override Version Version
