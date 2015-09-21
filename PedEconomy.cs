@@ -407,7 +407,17 @@ namespace PedEconomy
                             }
                             i++;
                         }
-                        TSPlayer.All.SendMessage("You got " + points + " " + PointName + " for being awesome!", 255, 128, 0);
+
+                        if (points > 1) {
+                            TSPlayer.All.SendMessage("You got " + points + " " + PointName + " for being awesome!", 255, 128, 0);
+                        } else if (points > 0) {
+                            TSPlayer.All.SendMessage("You got " + points + " " + PointNameSingular + " for being awesome!", 255, 128, 0);
+                        } else if (points > -2) {
+                            TSPlayer.All.SendMessage(points * (-1) + " " + PointNameSingular + " were taken from you for being too awesome!", 255, 128, 0);
+                        } else {
+                            TSPlayer.All.SendMessage(points * (-1) + " " + PointName + " were taken from you for being too awesome!", 255, 128, 0);
+                        }
+
                         db.Close();
                         GC.Collect();
                     }catch{
