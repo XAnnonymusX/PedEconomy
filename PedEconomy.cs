@@ -19,27 +19,28 @@ namespace PedEconomy
     public class PedEconomy : TerrariaPlugin
     {
 
-        public struct rank{
+        private struct rank {     //stuct which the rank list is made out of
             public string groupName;
             public int points;
-            public string displayName;
+            public string displayName;      //the string that will be shown in chat in the rankup messages
         }
 
-        #region global variables
-        public int RankListLength = File.ReadLines(@"ranklist.txt").Count();
-        public int SubRankListLength = File.ReadLines(@"subranklist.txt").Count();
-        public string PointName = "PedPoints";
-        public string PointNameSingular = "PedPoint";
-        public SQLiteConnection db;
-        public rank[] ranks;
-        public rank[] subRanks;
-        public string versionNumber = "1.1.2";
+        #region global variables    
+        private int RankListLength = File.ReadLines(@"ranklist.txt").Count();    //the variables I need shared in all functions
+        private int SubRankListLength = File.ReadLines(@"subranklist.txt").Count();
+        private string PointName = "PedPoints";
+        private string PointNameSingular = "PedPoint";
+        private SQLiteConnection db;
+        private rank[] ranks;
+        private rank[] subRanks;
+        private string filePath = "../";
+        public string versionNumber = "1.1.3";
         #endregion
 
         public override Version Version
         {
             get { return Assembly.GetExecutingAssembly().GetName().Version; }
-        }
+        }   //some stuff every plugin needs
         public override string Author
         {
             get { return "Annonymus"; }
@@ -52,7 +53,6 @@ namespace PedEconomy
         {
             get { return "Replacement for SEconomy on pedguin's server cause SEconomy is shit."; }
         }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -63,7 +63,7 @@ namespace PedEconomy
 
         public override void Initialize()
         {
-            Commands.ChatCommands.Add(new Command("PedEconomy.user", points, "points"));
+            Commands.ChatCommands.Add(new Command("PedEconomy.user", points, "points"));    //adding all commands
             Commands.ChatCommands.Add(new Command("PedEconomy.mod", award, "award"));
             Commands.ChatCommands.Add(new Command("PedEconomy.unregistered", login, "login"));
             Commands.ChatCommands.Add(new Command("PedEconomy.user", levelup, "levelup"));
@@ -77,10 +77,12 @@ namespace PedEconomy
             Commands.ChatCommands.Add(new Command("PedEconomy.mod", version, "version"));
             //Commands.ChatCommands.Add(new Command("PedEconomy.user", give, "give"));  //command removed because of complaints by admin
 
-            db = new SQLiteConnection("Data Source=PedEconomy.sqlite;Version=3;");
+            db = new SQLiteConnection("Data Source=" + filePath + "PedEconomy.sqlite;Version=3;");
 
             #region ranklist initialization
-            StreamReader reader = File.OpenText(@"rankList.txt");
+            string ranklistPath = filePath + "ranklist.txt";
+            string subranklistPath = filePath + "subranklist.txt";
+            StreamReader reader = File.OpenText(@ranklistPath);   //this part reads the ranklist.txt and subranklist.txt and transforms them into arrays of "rank" structs
             
             try {
                 string line;
@@ -88,28 +90,28 @@ namespace PedEconomy
                 ranks = new rank[RankListLength];
                 subRanks = new rank[SubRankListLength];
 
-                for (int i = 0;i < RankListLength;i++) {
+                for (int i = 0;i < RankListLength;i++) {    //this for cycles through all lines and reads them
                     line = reader.ReadLine();
                     int oldj = 0;
-                    for (int k = 0;k < 3;k++) {
+                    for (int k = 0;k < 3;k++) {     //this for cycles through the elements on a line and stores them in a "rank" struct
                         int j;
                         if (k < 2) {
-                            for (j = oldj;line.ElementAt(j) != ' ';j++) {
+                            for (j = oldj;line.ElementAt(j) != ' ';j++) {   //this for cycles through the letters in a word to define where a word begins and where it ends
 
                             }
                         } else {
-                            for (j = oldj;j < line.Length;j++) {
+                            for (j = oldj;j < line.Length;j++) {    //same as above for the "display name" which can be composed of multiple words
 
                             }
                         }
                         word = line.Substring(oldj, j - oldj);
                         oldj += j - oldj + 1;
-                        switch (k) {
+                        switch (k) {    //depending on which word we're on, save the word (or number) in one of the 3 variables of my "rank" struct
                             case 0:
                                 ranks[i].groupName = word;
                                 break;
                             case 1:
-                                ranks[i].points = Int32.Parse(word);
+                                ranks[i].points = Int32.Parse(word);    //NOTE: this breaks if the 2nd word is not a number, I could use Int32.TryParse but I was toot ired when I wrote this so I didn't bother, the try{}catch will clean this up
                                 break;
                             case 2:
                                 ranks[i].displayName = word;
@@ -118,7 +120,7 @@ namespace PedEconomy
                     }
                 }
 
-                reader = File.OpenText(@"subrankList.txt");
+                reader = File.OpenText(@subranklistPath);     //repeat everything for the subranklist
                 for (int i = 0;i < SubRankListLength;i++) {
                     line = reader.ReadLine();
                     int oldj = 0;
@@ -150,7 +152,7 @@ namespace PedEconomy
                 }
                 reader.Close();
             } catch {
-                reader.Close();
+                reader.Close();     //if anything goes wrong at least close the reader, the thing that's most likely to go wrong is a rank cost not being a number
             }
             #endregion
 
@@ -158,8 +160,10 @@ namespace PedEconomy
 
         private void reload(CommandArgs args) {
 
-            StreamReader reader = File.OpenText(@"rankList.txt");
-            try {
+            string ranklistPath = filePath + "ranklist.txt";
+            string subranklistPath = filePath + "subranklist.txt";
+            StreamReader reader = File.OpenText(@ranklistPath);   //this is the exact same code as can be found in Initialize() to build (or rebuild) the ranklist
+            try {                                                   //NOTE: I'm never freeing the memory assigned to the old ranklist, is that a problem? Does the garbage collector clean that up for me? Does it stay in memory forever?
                 string line;
                 string word;
                 ranks = new rank[RankListLength];
@@ -195,7 +199,7 @@ namespace PedEconomy
                     }
                 }
 
-                reader = File.OpenText(@"subrankList.txt");
+                reader = File.OpenText(@subranklistPath);
                 for (int i = 0;i < SubRankListLength;i++) {
                     line = reader.ReadLine();
                     int oldj = 0;
@@ -235,11 +239,11 @@ namespace PedEconomy
         }
         
         private void closedb(CommandArgs args){
-            db.Close();
+            db.Close();                 //if the database remains open for some reason an admin can use this command to close it again, it shouldn't happen though, I've added try-catches in every function for this
         }
 
         private void start(CommandArgs args){
-            SQLiteConnection.CreateFile("PedEconomy.sqlite");
+            SQLiteConnection.CreateFile(filePath + "PedEconomy.sqlite");   //this will erase the old database and create a new one, do not EVER use this after you started the server, it will ERASE EVERYTHING FOREVER, ONLY USE ONCE AT THE VERY BEGINNING OF THE LIFE OF YOUR SERVER TO CREATE A DATABASE WHEN THERE IS NONE, YET
             db.Open();
             SQLiteCommand command = new SQLiteCommand("CREATE TABLE Economy(Username VARCHAR(21),Points INT NOT NULL DEFAULT 0,Password VARCHAR(21), PRIMARY KEY(Username));", db);
             command.ExecuteNonQuery();
@@ -253,7 +257,7 @@ namespace PedEconomy
         }
 
         private void points(CommandArgs args) {
-            TSPlayer player = args.Player;
+            TSPlayer player = args.Player;  //this displays the number of points in the account of a person
 
             bool remote;
 
@@ -270,7 +274,7 @@ namespace PedEconomy
                 name = args.Parameters[0];
                 remote = true;
             }
-            else
+            else    //if there is a name following the command, ask for the points of someone else, if there isn't use the points of the user. If there are more than 2 arguments the syntax is incorrect
             {
                 args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /points [name]");
                 return;
@@ -278,7 +282,7 @@ namespace PedEconomy
             try { 
                 db.Open();
 
-                SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + name + "'", db);
+                SQLiteCommand command = new SQLiteCommand("SELECT * FROM Economy WHERE Username='" + name + "'", db);   //this needs the exact, case-sensitive name of the subject, should probably use tshock's name searching function
 
                 SQLiteDataReader reader = command.ExecuteReader();
                 reader.Read();
