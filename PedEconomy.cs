@@ -5,8 +5,6 @@ using System.Data.SQLite;
 using System.Reflection;
 using System.IO;
 using System.Linq;
-using Mono.Data.Sqlite;
-using MySql.Data.MySqlClient; 
 using TShockAPI;
 using TShockAPI.DB;
 using Terraria;
@@ -26,8 +24,8 @@ namespace PedEconomy
         }
 
         #region global variables    
-        private int RankListLength = File.ReadLines(@"ranklist.txt").Count();    //the variables I need shared in all functions
-        private int SubRankListLength = File.ReadLines(@"subranklist.txt").Count();
+        private int RankListLength = File.ReadLines(Path.Combine(TShock.SavePath, "ranklist.txt")).Count();    //the variables I need shared in all functions
+        private int SubRankListLength = File.ReadLines(Path.Combine(TShock.SavePath, "subranklist.txt")).Count();
         private string PointName = "PedPoints";
         private string PointNameSingular = "PedPoint";
         private SQLiteConnection db;
@@ -80,9 +78,9 @@ namespace PedEconomy
             db = new SQLiteConnection("Data Source=" + filePath + "PedEconomy.sqlite;Version=3;");
 
             #region ranklist initialization
-            string ranklistPath = filePath + "ranklist.txt";
-            string subranklistPath = filePath + "subranklist.txt";
-            StreamReader reader = File.OpenText(@ranklistPath);   //this part reads the ranklist.txt and subranklist.txt and transforms them into arrays of "rank" structs
+            string ranklistPath = Path.Combine(TShock.SavePath, "ranklist.txt");
+            string subranklistPath = Path.Combine(TShock.SavePath, "subranklist.txt");
+            StreamReader reader = File.OpenText(ranklistPath);   //this part reads the ranklist.txt and subranklist.txt and transforms them into arrays of "rank" structs
             
             try {
                 string line;
@@ -120,7 +118,7 @@ namespace PedEconomy
                     }
                 }
 
-                reader = File.OpenText(@subranklistPath);     //repeat everything for the subranklist
+                reader = File.OpenText(subranklistPath);     //repeat everything for the subranklist
                 for (int i = 0;i < SubRankListLength;i++) {
                     line = reader.ReadLine();
                     int oldj = 0;
@@ -160,9 +158,9 @@ namespace PedEconomy
 
         private void reload(CommandArgs args) {
 
-            string ranklistPath = filePath + "ranklist.txt";
-            string subranklistPath = filePath + "subranklist.txt";
-            StreamReader reader = File.OpenText(@ranklistPath);   //this is the exact same code as can be found in Initialize() to build (or rebuild) the ranklist
+            string ranklistPath = Path.Combine(TShock.SavePath, "ranklist.txt");
+            string subranklistPath = Path.Combine(TShock.SavePath, "subranklist.txt");
+            StreamReader reader = File.OpenText(ranklistPath);   //this is the exact same code as can be found in Initialize() to build (or rebuild) the ranklist
             try {                                                   //NOTE: I'm never freeing the memory assigned to the old ranklist, is that a problem? Does the garbage collector clean that up for me? Does it stay in memory forever?
                 string line;
                 string word;
@@ -199,7 +197,7 @@ namespace PedEconomy
                     }
                 }
 
-                reader = File.OpenText(@subranklistPath);
+                reader = File.OpenText(subranklistPath);
                 for (int i = 0;i < SubRankListLength;i++) {
                     line = reader.ReadLine();
                     int oldj = 0;
@@ -577,6 +575,7 @@ namespace PedEconomy
 
         private void login(CommandArgs args)
         {
+            if(args.Player.User == null) return;
 
             string username = args.Player.User.Name;
             TSPlayer player = args.Player;
@@ -592,7 +591,7 @@ namespace PedEconomy
                 {
                     command = new SQLiteCommand("INSERT INTO Economy VALUES('" + username + "', '0', '" + args.Parameters[args.Parameters.Count-1] + "');", db);
                     command.ExecuteNonQuery();
-                    player.SendMessage("Your Account has been initialized to 0 " + PointName + ", win in various gamemodes to get more and rank up", 255, 128, 0);
+                    player.SendMessage("Your Account has been initialized to 0 " + PointName + ", win in various gamemodes to get more and rank up.", 255, 128, 0);
                 }
 
                 command = new SQLiteCommand("UPDATE Economy SET Password='" + args.Parameters[args.Parameters.Count - 1] + "' WHERE Username='" + username + "'", db);

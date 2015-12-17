@@ -12,3 +12,15 @@ C:\Users\Annonymus\Desktop\TERRARIA\Projects\PedEconomy\PedEconomy\bin\Debug\Sys
 C:\Users\Annonymus\Desktop\TERRARIA\Projects\PedEconomy\PedEconomy\bin\Debug\System.Data.SQLite.xml
 C:\Users\Annonymus\Desktop\TERRARIA\Projects\PedEconomy\PedEconomy\obj\Debug\PedEconomy.csprojResolveAssemblyReference.cache
 C:\Users\Annonymus\Desktop\TERRARIA\Projects\PedEconomy\PedEconomy\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\PedEconomy.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\PedEconomy.pdb
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\HttpServer.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\BCrypt.Net.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\System.Data.SQLite.xml
+C:\Users\Zak\Documents\GitHub\PedEconomy\obj\Debug\PedEconomy.csprojResolveAssemblyReference.cache
+C:\Users\Zak\Documents\GitHub\PedEconomy\obj\Debug\PedEconomy.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\obj\Debug\PedEconomy.pdb
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\System.Data.SQLite.dll
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\TerrariaServer.exe
+C:\Users\Zak\Documents\GitHub\PedEconomy\bin\Debug\TShockAPI.dll
